@@ -1,13 +1,13 @@
-# TalentFlow - Mini Hiring Platform
+# TalentFlow – Mini Hiring Platform
 
-A modern, aesthetic React application for HR teams to manage jobs, candidates, and assessments with a beautiful natural theme and advanced styling.
+TalentFlow is a small React app I built to practice common HR workflows without a backend. It manages jobs, candidates, and quick assessments, and stores everything locally (IndexedDB) so a refresh doesn’t wipe your work.
 
 ## 🚀 Live Application
 
 **Deployed App:** Deploy on Netlify  
 **GitHub Repository:** View on GitHub
 
-## ✨ Features
+## ✨ What it does
 
 ### 1. Jobs Management ✅
 - Create, edit, archive, and reorder jobs with drag-and-drop
@@ -53,7 +53,7 @@ A modern, aesthetic React application for HR teams to manage jobs, candidates, a
 - Hiring rate calculation
 - Beautiful data visualization
 
-## 🏗️ Architecture
+## 🏗️ Architecture at a glance
 
 ### Tech Stack
 - **Frontend:** React 19.2 (JavaScript)
@@ -67,7 +67,7 @@ A modern, aesthetic React application for HR teams to manage jobs, candidates, a
 - **Forms:** React Hook Form
 - **Date Management:** Native JavaScript Date API
 
-### Project Structure
+### Project structure
 ```
 talentflow/
 ├── public/
@@ -99,7 +99,7 @@ talentflow/
 │   └── index.jsx            # Entry point
 ```
 
-### State Management
+### State management
 - **Zustand stores** for jobs, candidates, and assessments
 - **Persistent storage** using Zustand's persist middleware
 - **Local-first** approach with IndexedDB backup
@@ -113,7 +113,7 @@ talentflow/
 4. On refresh, state restored from IndexedDB
 5. No external API dependency
 
-### Design System
+### Design system
 - **Natural Color Palette:** Sage, moss, stone, and earth tones
 - **Typography:** Inter (body), Crimson Text (headings), JetBrains Mono (code)
 - **Components:** Reusable cards, buttons, inputs with consistent styling
@@ -155,7 +155,27 @@ npm run build
 
 This creates a `build/` directory with optimized production files.
 
-## 📊 Seed Data
+### Netlify deployment
+
+1. Connect repo: New Site → Import from Git → choose `PathaSnehith/Talentflow`.
+2. Build settings:
+   - Build command: `npm run build`
+   - Publish directory: `build`
+   - Environment variables:
+     - `NODE_VERSION=18`
+     - `CI=false`
+3. SPA redirects: ensure `public/_redirects` contains `/* /index.html 200`.
+4. Deploy and copy the site URL. Add it to `DEPLOYMENT.md`.
+
+### Screenshots
+
+Add screenshots here after deployment (optional but recommended):
+
+![Dashboard](./docs/images/dashboard.png)
+![Jobs](./docs/images/jobs.png)
+![Candidates Kanban](./docs/images/candidates-kanban.png)
+
+## 📊 Seed data
 
 The application comes pre-loaded with:
 - **25 Jobs** (mixed active/archived with various tags)
@@ -164,14 +184,12 @@ The application comes pre-loaded with:
 
 All data persists in browser's IndexedDB and survives page refreshes.
 
-## 🔧 Technical Decisions
-
-### Why These Technologies?
+## 🔧 Technical decisions (short version)
 
 **React (JavaScript)**
-- Matches assignment requirement to use React without TypeScript
-- Simple setup and faster iteration for a front‑end–only demo
-- Large ecosystem and community support
+- Matches the assignment (React without TypeScript)
+- Simple setup for a front‑end–only demo
+- Big ecosystem and community
 
 **Zustand**
 - Minimal boilerplate compared to Redux
@@ -197,14 +215,14 @@ All data persists in browser's IndexedDB and survives page refreshes.
 - Supports keyboard navigation
 - Optimistic updates out of the box
 
-### Performance Optimizations
+### Performance notes
 - **Virtualization** for large lists (1000+ candidates)
 - **Memoization** for expensive calculations
 - **Optimistic updates** for instant feedback
 - **Lazy loading** for route components
 - **Code splitting** for smaller bundles
 
-## 🐛 Known Issues & Solutions
+## ⚠️ Notes & trade‑offs
 
 ### 1. MSW Integration
 **Issue:** Need a network layer with latency/errors but no backend.  
@@ -222,7 +240,7 @@ All data persists in browser's IndexedDB and survives page refreshes.
 **Issue:** File upload is stubbed.  
 **Solution:** Basic structure exists. Real file handling can be added.
 
-## 📝 API Endpoints (MSW - For Future)
+## 📝 API endpoints (MSW – dev only)
 
 The following API endpoints are defined but currently use direct IndexedDB access:
 
