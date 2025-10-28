@@ -3,23 +3,20 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   PlusIcon,
   TrashIcon,
-  ChevronUpIcon,
-  ChevronDownIcon,
   CheckIcon,
   XMarkIcon,
   ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline';
-import { Assessment, AssessmentSection, AssessmentQuestion } from '../types';
 import { db } from '../db';
 import { useAssessmentStore } from '../store';
 import toast from 'react-hot-toast';
 
-const AssessmentBuilderPage: React.FC = () => {
-  const { jobId } = useParams<{ jobId: string }>();
+const AssessmentBuilderPage = () => {
+  const { jobId } = useParams();
   const navigate = useNavigate();
-  const { assessments, addAssessment, updateAssessment } = useAssessmentStore();
+  const { addAssessment, updateAssessment } = useAssessmentStore();
   
-  const [assessment, setAssessment] = useState<Assessment>({
+  const [assessment, setAssessment] = useState({
     id: '',
     jobId: jobId || '',
     title: '',
@@ -28,9 +25,7 @@ const AssessmentBuilderPage: React.FC = () => {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   });
-  
-  const [selectedSectionIndex, setSelectedSectionIndex] = useState<number | null>(null);
-  const [previewMode, setPreviewMode] = useState(false);
+  const [selectedSectionIndex, setSelectedSectionIndex] = useState(null);
   const [showPreview, setShowPreview] = useState(true);
 
   useEffect(() => {
@@ -39,13 +34,11 @@ const AssessmentBuilderPage: React.FC = () => {
 
   const fetchAssessment = async () => {
     if (!jobId) return;
-    
     try {
       const existing = await db.assessments.where('jobId').equals(jobId).first();
       if (existing) {
         setAssessment(existing);
       } else {
-        // Get job title for default assessment name
         const job = await db.jobs.get(jobId);
         setAssessment(prev => ({
           ...prev,
@@ -64,9 +57,8 @@ const AssessmentBuilderPage: React.FC = () => {
         ...assessment,
         updatedAt: new Date().toISOString()
       };
-
       if (assessment.id) {
-        await db.assessments.update(assessment.id, updatedAssessment as any);
+        await db.assessments.update(assessment.id, updatedAssessment);
         updateAssessment(assessment.id, updatedAssessment);
       } else {
         updatedAssessment.id = crypto.randomUUID();
@@ -75,7 +67,6 @@ const AssessmentBuilderPage: React.FC = () => {
         addAssessment(updatedAssessment);
         setAssessment(updatedAssessment);
       }
-
       toast.success('Assessment saved successfully');
     } catch (error) {
       toast.error('Failed to save assessment');
@@ -83,36 +74,32 @@ const AssessmentBuilderPage: React.FC = () => {
   };
 
   const addSection = () => {
-    const newSection: AssessmentSection = {
+    const newSection = {
       id: crypto.randomUUID(),
       title: 'New Section',
       description: '',
       questions: [],
       order: assessment.sections.length + 1
     };
-    
     setAssessment(prev => ({
       ...prev,
       sections: [...prev.sections, newSection]
     }));
-    
     setSelectedSectionIndex(assessment.sections.length);
   };
 
-  const deleteSection = (sectionIndex: number) => {
+  const deleteSection = (sectionIndex) => {
     if (!window.confirm('Are you sure you want to delete this section?')) return;
-    
     setAssessment(prev => ({
       ...prev,
       sections: prev.sections.filter((_, index) => index !== sectionIndex)
     }));
-    
     if (selectedSectionIndex === sectionIndex) {
       setSelectedSectionIndex(null);
     }
   };
 
-  const updateSection = (sectionIndex: number, updates: Partial<AssessmentSection>) => {
+  const updateSection = (sectionIndex, updates) => {
     setAssessment(prev => ({
       ...prev,
       sections: prev.sections.map((section, index) =>
@@ -121,8 +108,8 @@ const AssessmentBuilderPage: React.FC = () => {
     }));
   };
 
-  const addQuestion = (sectionIndex: number) => {
-    const newQuestion: AssessmentQuestion = {
+  const addQuestion = (sectionIndex) => {
+    const newQuestion = {
       id: crypto.randomUUID(),
       type: 'short-text',
       title: 'New Question',
@@ -130,23 +117,21 @@ const AssessmentBuilderPage: React.FC = () => {
       required: true,
       order: assessment.sections[sectionIndex].questions.length + 1
     };
-    
     updateSection(sectionIndex, {
       questions: [...assessment.sections[sectionIndex].questions, newQuestion]
     });
   };
 
-  const deleteQuestion = (sectionIndex: number, questionIndex: number) => {
+  const deleteQuestion = (sectionIndex, questionIndex) => {
     const section = assessment.sections[sectionIndex];
     updateSection(sectionIndex, {
       questions: section.questions.filter((_, index) => index !== questionIndex)
     });
   };
 
-  const updateQuestion = (sectionIndex: number, questionIndex: number, updates: Partial<AssessmentQuestion>) => {
+  const updateQuestion = (sectionIndex, questionIndex, updates) => {
     const section = assessment.sections[sectionIndex];
     const question = section.questions[questionIndex];
-    
     updateSection(sectionIndex, {
       questions: section.questions.map((q, index) =>
         index === questionIndex ? { ...question, ...updates } : q
@@ -154,21 +139,17 @@ const AssessmentBuilderPage: React.FC = () => {
     });
   };
 
-  // Render preview of questions
-  const renderQuestionPreview = (question: AssessmentQuestion) => {
+  const renderQuestionPreview = (question) => {
     const id = `preview-${question.id}`;
-    
     return (
       <div key={question.id} className="mb-6 p-4 border border-stone-200 rounded-lg bg-white">
         <label className="block text-sm font-medium text-stone-700 mb-2">
           {question.title}
           {question.required && <span className="text-red-500 ml-1">*</span>}
         </label>
-        
         {question.description && (
           <p className="text-xs text-stone-500 mb-3">{question.description}</p>
         )}
-        
         {question.type === 'single-choice' && (
           <div className="space-y-2">
             {question.options?.map((option, idx) => (
@@ -179,7 +160,6 @@ const AssessmentBuilderPage: React.FC = () => {
             ))}
           </div>
         )}
-        
         {question.type === 'multi-choice' && (
           <div className="space-y-2">
             {question.options?.map((option, idx) => (
@@ -190,7 +170,6 @@ const AssessmentBuilderPage: React.FC = () => {
             ))}
           </div>
         )}
-        
         {(question.type === 'short-text' || question.type === 'long-text') && (
           <textarea
             rows={question.type === 'long-text' ? 4 : 1}
@@ -199,7 +178,6 @@ const AssessmentBuilderPage: React.FC = () => {
             disabled
           />
         )}
-        
         {question.type === 'numeric' && (
           <input
             type="number"
@@ -210,7 +188,6 @@ const AssessmentBuilderPage: React.FC = () => {
             disabled
           />
         )}
-        
         {question.type === 'file-upload' && (
           <div className="border-2 border-dashed border-stone-300 rounded-lg p-6 text-center">
             <p className="text-sm text-stone-500">File Upload</p>
@@ -224,7 +201,6 @@ const AssessmentBuilderPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button
@@ -257,9 +233,7 @@ const AssessmentBuilderPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Builder Side */}
         <div className="space-y-6">
-          {/* Assessment Info */}
           <div className="card p-6">
             <h2 className="text-lg font-semibold text-stone-900 mb-4">Assessment Information</h2>
             <div className="space-y-4">
@@ -290,7 +264,6 @@ const AssessmentBuilderPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Sections */}
           <div className="card p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-stone-900">Sections</h2>
@@ -302,7 +275,6 @@ const AssessmentBuilderPage: React.FC = () => {
                 Add Section
               </button>
             </div>
-            
             <div className="space-y-4">
               {assessment.sections.map((section, sectionIndex) => (
                 <div
@@ -332,7 +304,6 @@ const AssessmentBuilderPage: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  
                   {selectedSectionIndex === sectionIndex && (
                     <div className="space-y-4 mt-4">
                       <div>
@@ -346,7 +317,6 @@ const AssessmentBuilderPage: React.FC = () => {
                           className="input-field"
                         />
                       </div>
-                      
                       <div>
                         <label className="block text-sm font-medium text-stone-700 mb-1">
                           Description
@@ -358,7 +328,6 @@ const AssessmentBuilderPage: React.FC = () => {
                           rows={2}
                         />
                       </div>
-                      
                       <div className="pt-4 border-t border-stone-200">
                         <div className="flex items-center justify-between mb-3">
                           <span className="text-sm font-medium text-stone-700">Questions</span>
@@ -370,7 +339,6 @@ const AssessmentBuilderPage: React.FC = () => {
                             Add Question
                           </button>
                         </div>
-                        
                         <div className="space-y-3">
                           {section.questions.map((question, questionIndex) => (
                             <div
@@ -383,7 +351,7 @@ const AssessmentBuilderPage: React.FC = () => {
                                   onChange={(e) => updateQuestion(
                                     sectionIndex, 
                                     questionIndex, 
-                                    { type: e.target.value as AssessmentQuestion['type'] }
+                                    { type: e.target.value }
                                   )}
                                   className="input-field text-sm py-1"
                                 >
@@ -401,7 +369,6 @@ const AssessmentBuilderPage: React.FC = () => {
                                   <TrashIcon className="h-4 w-4" />
                                 </button>
                               </div>
-                              
                               <input
                                 type="text"
                                 value={question.title}
@@ -413,7 +380,6 @@ const AssessmentBuilderPage: React.FC = () => {
                                 className="input-field text-sm mb-2"
                                 placeholder="Question text"
                               />
-                              
                               {(question.type === 'single-choice' || question.type === 'multi-choice') && (
                                 <div className="space-y-2 mb-2">
                                   {question.options?.map((option, idx) => (
@@ -441,7 +407,6 @@ const AssessmentBuilderPage: React.FC = () => {
                                   </button>
                                 </div>
                               )}
-                              
                               <div className="space-y-2">
                                 <label className="flex items-center text-sm text-stone-600">
                                   <input
@@ -456,81 +421,9 @@ const AssessmentBuilderPage: React.FC = () => {
                                   />
                                   Required
                                 </label>
-                                
-                                {/* Conditional Logic */}
-                                {assessment.sections[sectionIndex].questions.length > 1 && (
-                                  <details className="text-xs">
-                                    <summary className="cursor-pointer text-sage-600 hover:text-sage-700">
-                                      Add Conditional Logic
-                                    </summary>
-                                    <div className="mt-2 p-3 bg-stone-50 rounded border border-stone-200">
-                                      <label className="block text-xs font-medium text-stone-700 mb-1">
-                                        Show this question if:
-                                      </label>
-                                      <select
-                                        value={question.conditionalLogic?.dependsOn || ''}
-                                        onChange={(e) => {
-                                          const dependentQuestion = section.questions.find(q => q.id === e.target.value);
-                                          if (dependentQuestion) {
-                                            updateQuestion(sectionIndex, questionIndex, {
-                                              conditionalLogic: {
-                                                dependsOn: e.target.value,
-                                                condition: question.conditionalLogic?.condition || 'equals',
-                                                value: question.conditionalLogic?.value || ''
-                                              }
-                                            });
-                                          }
-                                        }}
-                                        className="input-field text-xs mb-2"
-                                      >
-                                        <option value="">Select question</option>
-                                        {section.questions
-                                          .filter((_, idx) => idx !== questionIndex)
-                                          .map((q, idx) => (
-                                            <option key={q.id} value={q.id}>
-                                              {q.title}
-                                            </option>
-                                          ))}
-                                      </select>
-                                      
-                                      {question.conditionalLogic?.dependsOn && (
-                                        <>
-                                          <select
-                                            value={question.conditionalLogic.condition}
-                                            onChange={(e) => updateQuestion(sectionIndex, questionIndex, {
-                                              conditionalLogic: {
-                                                ...question.conditionalLogic!,
-                                                condition: e.target.value as any
-                                              }
-                                            })}
-                                            className="input-field text-xs mb-2"
-                                          >
-                                            <option value="equals">equals</option>
-                                            <option value="not-equals">not equals</option>
-                                            <option value="contains">contains</option>
-                                          </select>
-                                          
-                                          <input
-                                            type="text"
-                                            value={question.conditionalLogic.value}
-                                            onChange={(e) => updateQuestion(sectionIndex, questionIndex, {
-                                              conditionalLogic: {
-                                                ...question.conditionalLogic!,
-                                                value: e.target.value
-                                              }
-                                            })}
-                                            className="input-field text-xs"
-                                            placeholder="Value"
-                                          />
-                                        </>
-                                      )}
-                                    </div>
-                                  </details>
-                                )}
                               </div>
                             </div>
                           ))}
-                          
                           {section.questions.length === 0 && (
                             <p className="text-sm text-stone-400 text-center py-4">
                               No questions yet. Click "Add Question" to get started.
@@ -542,7 +435,6 @@ const AssessmentBuilderPage: React.FC = () => {
                   )}
                 </div>
               ))}
-              
               {assessment.sections.length === 0 && (
                 <p className="text-center text-stone-400 py-8">
                   No sections yet. Click "Add Section" to get started.
@@ -551,8 +443,6 @@ const AssessmentBuilderPage: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {/* Preview Side */}
         {showPreview && (
           <div className="card p-6">
             <h2 className="text-lg font-semibold text-stone-900 mb-4">Live Preview</h2>
@@ -563,18 +453,15 @@ const AssessmentBuilderPage: React.FC = () => {
                   <p className="text-stone-600">{assessment.description}</p>
                 )}
               </div>
-              
               {assessment.sections.map((section) => (
                 <div key={section.id} className="mb-8">
                   <h4 className="text-lg font-semibold text-stone-900 mb-2">{section.title}</h4>
                   {section.description && (
                     <p className="text-sm text-stone-600 mb-4">{section.description}</p>
                   )}
-                  
                   {section.questions.map(question => renderQuestionPreview(question))}
                 </div>
               ))}
-              
               {assessment.sections.length === 0 && (
                 <div className="text-center py-12 text-stone-400">
                   <ClipboardDocumentListIcon className="h-12 w-12 mx-auto mb-4" />
@@ -590,3 +477,5 @@ const AssessmentBuilderPage: React.FC = () => {
 };
 
 export default AssessmentBuilderPage;
+
+

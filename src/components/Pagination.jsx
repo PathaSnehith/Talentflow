@@ -1,17 +1,7 @@
 import React from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
-interface PaginationProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-}
-
-const Pagination: React.FC<PaginationProps> = ({ 
-  currentPage, 
-  totalPages, 
-  onPageChange 
-}) => {
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   if (totalPages <= 1) return null;
 
   const getVisiblePages = () => {
@@ -89,7 +79,7 @@ const Pagination: React.FC<PaginationProps> = ({
                   </span>
                 ) : (
                   <button
-                    onClick={() => onPageChange(page as number)}
+                    onClick={() => onPageChange(page)}
                     className={`relative inline-flex items-center px-4 py-2 text-sm font-medium border ${
                       page === currentPage
                         ? 'z-10 bg-sage-50 border-sage-500 text-sage-600'
@@ -117,3 +107,5 @@ const Pagination: React.FC<PaginationProps> = ({
 };
 
 export default Pagination;
+
+

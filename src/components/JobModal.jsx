@@ -1,24 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { Job } from '../types';
 
-interface JobModalProps {
-  job?: Job | null;
-  onSave: (jobData: Partial<Job>) => void;
-  onClose: () => void;
-}
-
-const JobModal: React.FC<JobModalProps> = ({ job, onSave, onClose }) => {
+const JobModal = ({ job, onSave, onClose }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    tags: [] as string[],
-    requirements: [] as string[],
-    status: 'active' as 'active' | 'archived'
+    tags: [],
+    requirements: [],
+    status: 'active'
   });
   const [newTag, setNewTag] = useState('');
   const [newRequirement, setNewRequirement] = useState('');
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (job) {
@@ -33,13 +26,10 @@ const JobModal: React.FC<JobModalProps> = ({ job, onSave, onClose }) => {
   }, [job]);
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-    
+    const newErrors = {};
     if (!formData.title.trim()) {
       newErrors.title = 'Title is required';
     }
-    
-    // Check for unique slug (simplified validation)
     if (formData.title.trim()) {
       const slug = formData.title
         .toLowerCase()
@@ -47,29 +37,24 @@ const JobModal: React.FC<JobModalProps> = ({ job, onSave, onClose }) => {
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-')
         .trim();
-      
       if (slug.length < 3) {
         newErrors.title = 'Title must be at least 3 characters';
       }
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
-
-    const jobData: Partial<Job> = {
+    const jobData = {
       title: formData.title.trim(),
       description: formData.description.trim() || undefined,
       tags: formData.tags,
       requirements: formData.requirements,
       status: formData.status
     };
-
     onSave(jobData);
   };
 
@@ -83,7 +68,7 @@ const JobModal: React.FC<JobModalProps> = ({ job, onSave, onClose }) => {
     }
   };
 
-  const removeTag = (tagToRemove: string) => {
+  const removeTag = (tagToRemove) => {
     setFormData(prev => ({
       ...prev,
       tags: prev.tags.filter(tag => tag !== tagToRemove)
@@ -100,14 +85,14 @@ const JobModal: React.FC<JobModalProps> = ({ job, onSave, onClose }) => {
     }
   };
 
-  const removeRequirement = (requirementToRemove: string) => {
+  const removeRequirement = (requirementToRemove) => {
     setFormData(prev => ({
       ...prev,
       requirements: prev.requirements.filter(req => req !== requirementToRemove)
     }));
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent, action: () => void) => {
+  const handleKeyPress = (e, action) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       action();
@@ -120,7 +105,6 @@ const JobModal: React.FC<JobModalProps> = ({ job, onSave, onClose }) => {
         <div className="fixed inset-0 bg-stone-600 bg-opacity-75" onClick={onClose} />
         
         <div className="relative bg-white rounded-xl shadow-strong max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-stone-200">
             <h2 className="text-xl font-semibold text-stone-900">
               {job ? 'Edit Job' : 'Create New Job'}
@@ -133,9 +117,7 @@ const JobModal: React.FC<JobModalProps> = ({ job, onSave, onClose }) => {
             </button>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
-            {/* Title */}
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-stone-700 mb-2">
                 Job Title *
@@ -153,7 +135,6 @@ const JobModal: React.FC<JobModalProps> = ({ job, onSave, onClose }) => {
               )}
             </div>
 
-            {/* Description */}
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-stone-700 mb-2">
                 Description
@@ -168,7 +149,6 @@ const JobModal: React.FC<JobModalProps> = ({ job, onSave, onClose }) => {
               />
             </div>
 
-            {/* Tags */}
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-2">
                 Tags
@@ -209,7 +189,6 @@ const JobModal: React.FC<JobModalProps> = ({ job, onSave, onClose }) => {
               </div>
             </div>
 
-            {/* Requirements */}
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-2">
                 Requirements
@@ -251,7 +230,6 @@ const JobModal: React.FC<JobModalProps> = ({ job, onSave, onClose }) => {
               </div>
             </div>
 
-            {/* Status */}
             <div>
               <label htmlFor="status" className="block text-sm font-medium text-stone-700 mb-2">
                 Status
@@ -259,7 +237,7 @@ const JobModal: React.FC<JobModalProps> = ({ job, onSave, onClose }) => {
               <select
                 id="status"
                 value={formData.status}
-                onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'active' | 'archived' }))}
+                onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
                 className="input-field"
               >
                 <option value="active">Active</option>
@@ -267,7 +245,6 @@ const JobModal: React.FC<JobModalProps> = ({ job, onSave, onClose }) => {
               </select>
             </div>
 
-            {/* Actions */}
             <div className="flex justify-end space-x-3 pt-6 border-t border-stone-200">
               <button
                 type="button"
@@ -291,3 +268,5 @@ const JobModal: React.FC<JobModalProps> = ({ job, onSave, onClose }) => {
 };
 
 export default JobModal;
+
+

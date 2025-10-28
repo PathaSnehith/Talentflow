@@ -6,17 +6,10 @@ import {
   UsersIcon, 
   ClipboardDocumentListIcon,
   Bars3Icon,
-  XMarkIcon,
-  SunIcon,
-  MoonIcon
+  XMarkIcon
 } from '@heroicons/react/24/outline';
-// Removed dark mode functionality
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
@@ -27,7 +20,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: 'Assessments', href: '/assessments', icon: ClipboardDocumentListIcon },
   ];
 
-  const isActive = (href: string) => {
+  const isActive = (href) => {
     if (href === '/') {
       return location.pathname === '/';
     }
@@ -113,7 +106,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           >
             <Bars3Icon className="h-6 w-6" />
           </button>
-          
           <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
             <div className="flex flex-1"></div>
             <div className="flex items-center gap-x-4 lg:gap-x-6">
@@ -142,3 +134,5 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 };
 
 export default Layout;
+
+

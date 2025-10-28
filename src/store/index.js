@@ -1,55 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Job, Candidate, Assessment, JobFilters, CandidateFilters } from '../types';
 
-interface JobStore {
-  jobs: Job[];
-  loading: boolean;
-  error: string | null;
-  filters: JobFilters;
-  
-  // Actions
-  setJobs: (jobs: Job[]) => void;
-  addJob: (job: Job) => void;
-  updateJob: (id: string, updates: Partial<Job>) => void;
-  deleteJob: (id: string) => void;
-  reorderJobs: (fromOrder: number, toOrder: number) => void;
-  setFilters: (filters: Partial<JobFilters>) => void;
-  setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
-}
-
-interface CandidateStore {
-  candidates: Candidate[];
-  loading: boolean;
-  error: string | null;
-  filters: CandidateFilters;
-  
-  // Actions
-  setCandidates: (candidates: Candidate[]) => void;
-  addCandidate: (candidate: Candidate) => void;
-  updateCandidate: (id: string, updates: Partial<Candidate>) => void;
-  moveCandidateStage: (id: string, stage: Candidate['stage']) => void;
-  setFilters: (filters: Partial<CandidateFilters>) => void;
-  setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
-}
-
-interface AssessmentStore {
-  assessments: Assessment[];
-  loading: boolean;
-  error: string | null;
-  
-  // Actions
-  setAssessments: (assessments: Assessment[]) => void;
-  addAssessment: (assessment: Assessment) => void;
-  updateAssessment: (id: string, updates: Partial<Assessment>) => void;
-  deleteAssessment: (id: string) => void;
-  setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
-}
-
-export const useJobStore = create<JobStore>()(
+export const useJobStore = create(
   persist(
     (set, get) => ({
       jobs: [],
@@ -60,7 +12,6 @@ export const useJobStore = create<JobStore>()(
         pageSize: 10,
         sort: 'order'
       },
-      
       setJobs: (jobs) => set({ jobs }),
       addJob: (job) => set((state) => ({ jobs: [...state.jobs, job] })),
       updateJob: (id, updates) => set((state) => ({
@@ -73,17 +24,13 @@ export const useJobStore = create<JobStore>()(
         const jobs = [...state.jobs];
         const fromIndex = jobs.findIndex(job => job.order === fromOrder);
         const toIndex = jobs.findIndex(job => job.order === toOrder);
-        
         if (fromIndex !== -1 && toIndex !== -1) {
           const [movedJob] = jobs.splice(fromIndex, 1);
           jobs.splice(toIndex, 0, movedJob);
-          
-          // Update order values
           jobs.forEach((job, index) => {
             job.order = index + 1;
           });
         }
-        
         return { jobs };
       }),
       setFilters: (filters) => set((state) => ({ 
@@ -99,7 +46,7 @@ export const useJobStore = create<JobStore>()(
   )
 );
 
-export const useCandidateStore = create<CandidateStore>()(
+export const useCandidateStore = create(
   persist(
     (set, get) => ({
       candidates: [],
@@ -109,7 +56,6 @@ export const useCandidateStore = create<CandidateStore>()(
         page: 1,
         pageSize: 20
       },
-      
       setCandidates: (candidates) => set({ candidates }),
       addCandidate: (candidate) => set((state) => ({ 
         candidates: [...state.candidates, candidate] 
@@ -137,13 +83,12 @@ export const useCandidateStore = create<CandidateStore>()(
   )
 );
 
-export const useAssessmentStore = create<AssessmentStore>()(
+export const useAssessmentStore = create(
   persist(
     (set, get) => ({
       assessments: [],
       loading: false,
       error: null,
-      
       setAssessments: (assessments) => set({ assessments }),
       addAssessment: (assessment) => set((state) => ({ 
         assessments: [...state.assessments, assessment] 
@@ -165,3 +110,5 @@ export const useAssessmentStore = create<AssessmentStore>()(
     }
   )
 );
+
+

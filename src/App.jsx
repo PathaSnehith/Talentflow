@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { worker } from './mocks/handlers';
 import { initializeDB } from './db';
-// Dark mode removed
 import Layout from './components/Layout';
 import JobsPage from './pages/JobsPage';
 import JobDetailPage from './pages/JobDetailPage';
@@ -15,22 +14,17 @@ import DashboardPage from './pages/DashboardPage';
 
 function App() {
   useEffect(() => {
-    // Initialize database
     initializeDB();
-    
-    // Initialize MSW in development
-    if (process.env.NODE_ENV === 'development' && false) { // Disabled for now
-      worker.start({
-        onUnhandledRequest: 'bypass'
-      });
+    if (process.env.NODE_ENV === 'development' && false) {
+      worker.start({ onUnhandledRequest: 'bypass' });
     }
   }, []);
 
   return (
     <Router>
       <div className="min-h-screen bg-gradient-natural">
-          <Layout>
-            <Routes>
+        <Layout>
+          <Routes>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/jobs" element={<JobsPage />} />
             <Route path="/jobs/:id" element={<JobDetailPage />} />
@@ -49,7 +43,8 @@ function App() {
               color: '#374151',
               border: '1px solid #e5e7eb',
               borderRadius: '0.75rem',
-              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+              boxShadow:
+                '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
             },
           }}
         />
@@ -59,3 +54,5 @@ function App() {
 }
 
 export default App;
+
+

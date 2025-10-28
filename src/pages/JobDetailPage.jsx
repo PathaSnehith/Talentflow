@@ -11,16 +11,15 @@ import {
 } from '@heroicons/react/24/outline';
 import { useJobStore } from '../store';
 import { useCandidateStore } from '../store';
-import { Job, Candidate } from '../types';
 import JobModal from '../components/JobModal';
 import toast from 'react-hot-toast';
 
-const JobDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+const JobDetailPage = () => {
+  const { id } = useParams();
   const { jobs, updateJob } = useJobStore();
   const { candidates } = useCandidateStore();
-  const [job, setJob] = useState<Job | null>(null);
-  const [jobCandidates, setJobCandidates] = useState<Candidate[]>([]);
+  const [job, setJob] = useState(null);
+  const [jobCandidates, setJobCandidates] = useState([]);
   const [showJobModal, setShowJobModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -32,7 +31,6 @@ const JobDetailPage: React.FC = () => {
         setJobCandidates(candidates.filter(c => c.jobId === id));
         setLoading(false);
       } else {
-        // If job not found in store, try to fetch from API
         fetchJob();
       }
     }
@@ -55,19 +53,17 @@ const JobDetailPage: React.FC = () => {
     }
   };
 
-  const handleJobUpdate = async (jobData: Partial<Job>) => {
+  const handleJobUpdate = async (jobData) => {
     try {
       const response = await fetch(`/api/jobs/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(jobData)
       });
-      
       if (!response.ok) throw new Error('Failed to update job');
-      
       const updatedJob = await response.json();
       setJob(updatedJob);
-      updateJob(id!, updatedJob);
+      updateJob(id, updatedJob);
       setShowJobModal(false);
       toast.success('Job updated successfully');
     } catch (error) {
@@ -77,7 +73,6 @@ const JobDetailPage: React.FC = () => {
 
   const handleJobArchive = async () => {
     if (!job) return;
-    
     try {
       const response = await fetch(`/api/jobs/${id}`, {
         method: 'PATCH',
@@ -86,19 +81,17 @@ const JobDetailPage: React.FC = () => {
           status: job.status === 'active' ? 'archived' : 'active' 
         })
       });
-      
       if (!response.ok) throw new Error('Failed to update job');
-      
       const updatedJob = await response.json();
       setJob(updatedJob);
-      updateJob(id!, updatedJob);
+      updateJob(id, updatedJob);
       toast.success(`Job ${job.status === 'active' ? 'archived' : 'activated'}`);
     } catch (error) {
       toast.error('Failed to update job');
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -106,7 +99,7 @@ const JobDetailPage: React.FC = () => {
     });
   };
 
-  const getCandidatesByStage = (stage: Candidate['stage']) => {
+  const getCandidatesByStage = (stage) => {
     return jobCandidates.filter(candidate => candidate.stage === stage);
   };
 
@@ -150,7 +143,6 @@ const JobDetailPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Link
@@ -200,9 +192,7 @@ const JobDetailPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Description */}
           <div className="card p-6">
             <h2 className="text-xl font-semibold text-stone-900 mb-4">Job Description</h2>
             {job.description ? (
@@ -214,7 +204,6 @@ const JobDetailPage: React.FC = () => {
             )}
           </div>
 
-          {/* Requirements */}
           {job.requirements && job.requirements.length > 0 && (
             <div className="card p-6">
               <h2 className="text-xl font-semibold text-stone-900 mb-4">Requirements</h2>
@@ -231,7 +220,6 @@ const JobDetailPage: React.FC = () => {
             </div>
           )}
 
-          {/* Tags */}
           {job.tags && job.tags.length > 0 && (
             <div className="card p-6">
               <h2 className="text-xl font-semibold text-stone-900 mb-4">Tags</h2>
@@ -250,9 +238,7 @@ const JobDetailPage: React.FC = () => {
           )}
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Candidate Pipeline */}
           <div className="card p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-stone-900">Candidate Pipeline</h3>
@@ -266,11 +252,11 @@ const JobDetailPage: React.FC = () => {
             
             <div className="space-y-3">
               {Object.entries(stageLabels).map(([stage, label]) => {
-                const candidatesInStage = getCandidatesByStage(stage as Candidate['stage']);
+                const candidatesInStage = getCandidatesByStage(stage);
                 return (
                   <div key={stage} className="flex items-center justify-between">
                     <div className="flex items-center">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${stageColors[stage as keyof typeof stageColors]}`}>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${stageColors[stage]}`}>
                         {label}
                       </span>
                     </div>
@@ -290,7 +276,6 @@ const JobDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Actions */}
           <div className="card p-6">
             <h3 className="text-lg font-semibold text-stone-900 mb-4">Quick Actions</h3>
             <div className="space-y-3">
@@ -318,7 +303,6 @@ const JobDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Job Info */}
           <div className="card p-6">
             <h3 className="text-lg font-semibold text-stone-900 mb-4">Job Information</h3>
             <div className="space-y-3">
@@ -339,7 +323,6 @@ const JobDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Job Modal */}
       {showJobModal && (
         <JobModal
           job={job}
@@ -352,3 +335,5 @@ const JobDetailPage: React.FC = () => {
 };
 
 export default JobDetailPage;
+
+

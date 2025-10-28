@@ -10,23 +10,8 @@ import {
 } from '@heroicons/react/24/outline';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Job } from '../types';
 
-interface JobCardProps {
-  job: Job;
-  onEdit: () => void;
-  onArchive: () => void;
-  onView: () => void;
-  isReordering?: boolean;
-}
-
-const JobCard: React.FC<JobCardProps> = ({ 
-  job, 
-  onEdit, 
-  onArchive, 
-  onView, 
-  isReordering = false 
-}) => {
+const JobCard = ({ job, onEdit, onArchive, onView, isReordering = false }) => {
   const {
     attributes,
     listeners,
@@ -41,7 +26,7 @@ const JobCard: React.FC<JobCardProps> = ({
     transition,
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -60,7 +45,6 @@ const JobCard: React.FC<JobCardProps> = ({
       <div className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            {/* Drag Handle */}
             <div
               {...attributes}
               {...listeners}
@@ -69,7 +53,6 @@ const JobCard: React.FC<JobCardProps> = ({
               <ArrowsUpDownIcon className="h-5 w-5 text-stone-400" />
             </div>
 
-            {/* Job Title and Status */}
             <div className="ml-6">
               <div className="flex items-center space-x-3">
                 <Link
@@ -87,14 +70,12 @@ const JobCard: React.FC<JobCardProps> = ({
                 </span>
               </div>
 
-              {/* Job Description */}
               {job.description && (
                 <p className="mt-2 text-stone-600 line-clamp-2">
                   {job.description}
                 </p>
               )}
 
-              {/* Tags */}
               {job.tags.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {job.tags.map((tag) => (
@@ -109,7 +90,6 @@ const JobCard: React.FC<JobCardProps> = ({
                 </div>
               )}
 
-              {/* Meta Information */}
               <div className="mt-4 flex items-center space-x-4 text-sm text-stone-500">
                 <div className="flex items-center">
                   <CalendarIcon className="h-4 w-4 mr-1" />
@@ -123,7 +103,6 @@ const JobCard: React.FC<JobCardProps> = ({
             </div>
           </div>
 
-          {/* Actions */}
           <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={onView}
@@ -158,3 +137,5 @@ const JobCard: React.FC<JobCardProps> = ({
 };
 
 export default JobCard;
+
+

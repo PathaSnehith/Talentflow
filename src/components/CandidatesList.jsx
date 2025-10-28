@@ -1,21 +1,7 @@
 import React, { useMemo } from 'react';
 import { UserCircleIcon, EnvelopeIcon, PhoneIcon } from '@heroicons/react/24/outline';
-import { Candidate } from '../types';
 
-interface CandidatesListProps {
-  candidates: Candidate[];
-  searchTerm: string;
-  stageFilter: string;
-  onCandidateClick: (candidate: Candidate) => void;
-}
-
-const CandidatesList: React.FC<CandidatesListProps> = ({ 
-  candidates, 
-  searchTerm, 
-  stageFilter,
-  onCandidateClick 
-}) => {
-  // Filter candidates based on search and stage
+const CandidatesList = ({ candidates, searchTerm, stageFilter, onCandidateClick }) => {
   const filteredCandidates = useMemo(() => {
     let filtered = candidates;
 
@@ -33,7 +19,7 @@ const CandidatesList: React.FC<CandidatesListProps> = ({
     return filtered;
   }, [candidates, searchTerm, stageFilter]);
 
-  const getStageColor = (stage: string) => {
+  const getStageColor = (stage) => {
     const colors = {
       applied: 'bg-blue-100 text-blue-800',
       screen: 'bg-yellow-100 text-yellow-800',
@@ -42,10 +28,10 @@ const CandidatesList: React.FC<CandidatesListProps> = ({
       hired: 'bg-emerald-100 text-emerald-800',
       rejected: 'bg-red-100 text-red-800'
     };
-    return colors[stage as keyof typeof colors] || 'bg-stone-100 text-stone-800';
+    return colors[stage] || 'bg-stone-100 text-stone-800';
   };
 
-  const getStageLabel = (stage: string) => {
+  const getStageLabel = (stage) => {
     const labels = {
       applied: 'Applied',
       screen: 'Screening',
@@ -54,7 +40,7 @@ const CandidatesList: React.FC<CandidatesListProps> = ({
       hired: 'Hired',
       rejected: 'Rejected'
     };
-    return labels[stage as keyof typeof labels] || stage;
+    return labels[stage] || stage;
   };
 
   if (filteredCandidates.length === 0) {
@@ -79,7 +65,6 @@ const CandidatesList: React.FC<CandidatesListProps> = ({
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4 flex-1 min-w-0">
-              {/* Avatar */}
               <div className="flex-shrink-0">
                 <div className="h-10 w-10 bg-sage-100 rounded-full flex items-center justify-center">
                   <span className="text-sage-700 font-medium text-sm">
@@ -88,7 +73,6 @@ const CandidatesList: React.FC<CandidatesListProps> = ({
                 </div>
               </div>
 
-              {/* Candidate Info */}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-stone-900 truncate">
                   {candidate.name}
@@ -107,7 +91,6 @@ const CandidatesList: React.FC<CandidatesListProps> = ({
                 </div>
               </div>
 
-              {/* Stage Badge */}
               <div className="flex items-center space-x-3">
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStageColor(candidate.stage)}`}>
                   {getStageLabel(candidate.stage)}
@@ -127,3 +110,5 @@ const CandidatesList: React.FC<CandidatesListProps> = ({
 };
 
 export default CandidatesList;
+
+

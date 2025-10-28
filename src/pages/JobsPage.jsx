@@ -1,28 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { 
   PlusIcon, 
   MagnifyingGlassIcon,
-  FunnelIcon,
-  Bars3Icon,
-  EyeIcon,
-  PencilIcon,
-  ArchiveBoxIcon,
-  ArrowUpIcon,
-  ArrowDownIcon,
   BriefcaseIcon
 } from '@heroicons/react/24/outline';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useJobStore } from '../store';
 import { db } from '../db';
-import { Job, JobFilters } from '../types';
 import JobCard from '../components/JobCard';
 import JobModal from '../components/JobModal';
 import Pagination from '../components/Pagination';
 import toast from 'react-hot-toast';
 
-const JobsPage: React.FC = () => {
+const JobsPage = () => {
   const { 
     jobs, 
     loading, 
@@ -32,14 +23,13 @@ const JobsPage: React.FC = () => {
     setFilters, 
     setLoading, 
     setError,
-    reorderJobs 
   } = useJobStore();
 
   const [showJobModal, setShowJobModal] = useState(false);
-  const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [editingJob, setEditingJob] = useState(null);
   const [searchTerm, setSearchTerm] = useState(filters.search || '');
   const [statusFilter, setStatusFilter] = useState(filters.status || '');
-  const [tagFilter, setTagFilter] = useState<string[]>([]);
+  const [tagFilter, setTagFilter] = useState([]);
   const [sortBy, setSortBy] = useState(filters.sort || 'order');
   const [isReordering, setIsReordering] = useState(false);
 
@@ -50,27 +40,20 @@ const JobsPage: React.FC = () => {
     })
   );
 
-  // Fetch jobs from IndexedDB
   const fetchJobs = async () => {
     setLoading(true);
     setError(null);
-    
     try {
       let allJobs = await db.jobs.toArray();
-
-      // Apply filters
       if (filters.search) {
         allJobs = allJobs.filter(job => 
-          job.title.toLowerCase().includes(filters.search!.toLowerCase()) ||
-          job.tags.some(tag => tag.toLowerCase().includes(filters.search!.toLowerCase()))
+          job.title.toLowerCase().includes(filters.search.toLowerCase()) ||
+          job.tags.some(tag => tag.toLowerCase().includes(filters.search.toLowerCase()))
         );
       }
-
       if (filters.status) {
         allJobs = allJobs.filter(job => job.status === filters.status);
       }
-
-      // Apply sorting
       const sort = filters.sort || 'order';
       allJobs.sort((a, b) => {
         switch (sort) {
@@ -83,7 +66,6 @@ const JobsPage: React.FC = () => {
             return a.order - b.order;
         }
       });
-
       setJobs(allJobs);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch jobs');
@@ -97,71 +79,57 @@ const JobsPage: React.FC = () => {
     fetchJobs();
   }, [filters]);
 
-  // Handle search
-  const handleSearch = (value: string) => {
+  const handleSearch = (value) => {
     setSearchTerm(value);
     setFilters({ search: value, page: 1 });
   };
 
-  // Handle status filter
-  const handleStatusFilter = (status: string) => {
+  const handleStatusFilter = (status) => {
     setStatusFilter(status);
-    setFilters({ status: status as 'active' | 'archived' | undefined, page: 1 });
+    setFilters({ status, page: 1 });
   };
 
-  // Handle sort
-  const handleSort = (sort: string) => {
-    setSortBy(sort as 'title' | 'createdAt' | 'order');
-    setFilters({ sort: sort as any, page: 1 });
+  const handleSort = (sort) => {
+    setSortBy(sort);
+    setFilters({ sort, page: 1 });
   };
 
-  // Handle pagination
-  const handlePageChange = (page: number) => {
+  const handlePageChange = (page) => {
     setFilters({ page });
   };
 
-  // Handle drag and drop reordering
-  const handleDragEnd = async (event: any) => {
+  const handleDragEnd = async (event) => {
     const { active, over } = event;
-    
-    if (active.id !== over.id) {
-      const oldIndex = jobs.findIndex(job => job.id === active.id);
-      const newIndex = jobs.findIndex(job => job.id === over.id);
-      
-      const reorderedJobs = arrayMove(jobs, oldIndex, newIndex);
-      setJobs(reorderedJobs);
-      
-      setIsReordering(true);
-      
-      try {
-        const response = await fetch(`/api/jobs/${active.id}/reorder`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fromOrder: jobs[oldIndex].order,
-            toOrder: jobs[newIndex].order
-          })
-        });
-        
-        if (!response.ok) {
-          // Rollback on failure
-          setJobs(jobs);
-          toast.error('Failed to reorder jobs');
-        } else {
-          toast.success('Jobs reordered successfully');
-        }
-      } catch (error) {
-        // Rollback on failure
+    if (!over || active.id === over.id) return;
+    const oldIndex = jobs.findIndex(job => job.id === active.id);
+    const newIndex = jobs.findIndex(job => job.id === over.id);
+    const reorderedJobs = arrayMove(jobs, oldIndex, newIndex);
+    setJobs(reorderedJobs);
+    setIsReordering(true);
+    try {
+      const response = await fetch(`/api/jobs/${active.id}/reorder`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fromOrder: jobs[oldIndex].order,
+          toOrder: jobs[newIndex].order
+        })
+      });
+      if (!response.ok) {
         setJobs(jobs);
         toast.error('Failed to reorder jobs');
-      } finally {
-        setIsReordering(false);
+      } else {
+        toast.success('Jobs reordered successfully');
       }
+    } catch (error) {
+      setJobs(jobs);
+      toast.error('Failed to reorder jobs');
+    } finally {
+      setIsReordering(false);
     }
   };
 
-  // Handle job creation/update
-  const handleJobSave = async (jobData: Partial<Job>) => {
+  const handleJobSave = async (jobData) => {
     try {
       if (editingJob) {
         const updateData = {
@@ -171,7 +139,7 @@ const JobsPage: React.FC = () => {
         await db.jobs.update(editingJob.id, updateData);
         toast.success('Job updated successfully');
       } else {
-        const newJob: Job = {
+        const newJob = {
           id: crypto.randomUUID(),
           title: jobData.title || '',
           slug: jobData.title?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || '',
@@ -186,7 +154,6 @@ const JobsPage: React.FC = () => {
         await db.jobs.add(newJob);
         toast.success('Job created successfully');
       }
-      
       setShowJobModal(false);
       setEditingJob(null);
       fetchJobs();
@@ -195,15 +162,13 @@ const JobsPage: React.FC = () => {
     }
   };
 
-  // Handle job archive/unarchive
-  const handleJobArchive = async (job: Job) => {
+  const handleJobArchive = async (job) => {
     try {
       const newStatus = job.status === 'active' ? 'archived' : 'active';
       await db.jobs.update(job.id, {
         status: newStatus,
         updatedAt: new Date().toISOString()
       });
-      
       toast.success(`Job ${newStatus === 'archived' ? 'archived' : 'activated'}`);
       fetchJobs();
     } catch (error) {
@@ -211,12 +176,10 @@ const JobsPage: React.FC = () => {
     }
   };
 
-  // Get unique tags for filter
   const allTags = Array.from(new Set(jobs.flatMap(job => job.tags)));
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-stone-900">Jobs</h1>
@@ -231,10 +194,8 @@ const JobsPage: React.FC = () => {
         </button>
       </div>
 
-      {/* Filters */}
       <div className="card p-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Search */}
           <div className="relative">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-stone-400" />
             <input
@@ -246,7 +207,6 @@ const JobsPage: React.FC = () => {
             />
           </div>
 
-          {/* Status Filter */}
           <select
             value={statusFilter}
             onChange={(e) => handleStatusFilter(e.target.value)}
@@ -257,7 +217,6 @@ const JobsPage: React.FC = () => {
             <option value="archived">Archived</option>
           </select>
 
-          {/* Sort */}
           <select
             value={sortBy}
             onChange={(e) => handleSort(e.target.value)}
@@ -268,7 +227,6 @@ const JobsPage: React.FC = () => {
             <option value="createdAt">Date Created</option>
           </select>
 
-          {/* Tag Filter */}
           <select
             value={tagFilter[0] || ''}
             onChange={(e) => setTagFilter(e.target.value ? [e.target.value] : [])}
@@ -282,7 +240,6 @@ const JobsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Jobs List */}
       <div className="card">
         {loading ? (
           <div className="p-8 text-center">
@@ -344,7 +301,6 @@ const JobsPage: React.FC = () => {
         )}
       </div>
 
-      {/* Pagination */}
       {jobs.length > 0 && (
         <Pagination
           currentPage={filters.page || 1}
@@ -353,7 +309,6 @@ const JobsPage: React.FC = () => {
         />
       )}
 
-      {/* Job Modal */}
       {showJobModal && (
         <JobModal
           job={editingJob}
@@ -369,3 +324,5 @@ const JobsPage: React.FC = () => {
 };
 
 export default JobsPage;
+
+

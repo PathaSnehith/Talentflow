@@ -9,19 +9,18 @@ import {
   PencilIcon,
   BriefcaseIcon
 } from '@heroicons/react/24/outline';
-import { Candidate } from '../types';
 import { db } from '../db';
 import { useCandidateStore } from '../store';
 import toast from 'react-hot-toast';
 
-const CandidateDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+const CandidateDetailPage = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const { updateCandidate } = useCandidateStore();
   
-  const [candidate, setCandidate] = useState<Candidate | null>(null);
+  const [candidate, setCandidate] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [timeline, setTimeline] = useState<any[]>([]);
+  const [timeline, setTimeline] = useState([]);
   const [notes, setNotes] = useState('');
   const [showNotesInput, setShowNotesInput] = useState(false);
 
@@ -31,15 +30,12 @@ const CandidateDetailPage: React.FC = () => {
 
   const fetchCandidate = async () => {
     if (!id) return;
-    
     setLoading(true);
     try {
       const candidateData = await db.candidates.get(id);
       if (candidateData) {
         setCandidate(candidateData);
         setNotes(candidateData.notes || '');
-        
-        // Generate timeline from candidate data
         const timelineEvents = [
           {
             id: '1',
@@ -48,7 +44,6 @@ const CandidateDetailPage: React.FC = () => {
             notes: 'Application submitted'
           }
         ];
-        
         if (candidateData.updatedAt !== candidateData.appliedAt) {
           timelineEvents.push({
             id: '2',
@@ -57,7 +52,6 @@ const CandidateDetailPage: React.FC = () => {
             notes: 'Status updated'
           });
         }
-        
         setTimeline(timelineEvents);
       } else {
         toast.error('Candidate not found');
@@ -70,22 +64,18 @@ const CandidateDetailPage: React.FC = () => {
     }
   };
 
-  const handleStageChange = async (newStage: Candidate['stage']) => {
+  const handleStageChange = async (newStage) => {
     if (!candidate) return;
-    
     try {
       const updatedCandidate = {
         ...candidate,
         stage: newStage,
         updatedAt: new Date().toISOString()
       };
-      
-      await db.candidates.update(id!, updatedCandidate);
+      await db.candidates.update(id, updatedCandidate);
       setCandidate(updatedCandidate);
-      updateCandidate(id!, updatedCandidate);
+      updateCandidate(id, updatedCandidate);
       toast.success(`Moved to ${newStage} stage`);
-      
-      // Add to timeline
       setTimeline(prev => [...prev, {
         id: crypto.randomUUID(),
         stage: newStage,
@@ -99,7 +89,6 @@ const CandidateDetailPage: React.FC = () => {
 
   const handleSaveNotes = async () => {
     if (!candidate || !id) return;
-    
     try {
       await db.candidates.update(id, {
         notes,
@@ -113,7 +102,7 @@ const CandidateDetailPage: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -124,7 +113,7 @@ const CandidateDetailPage: React.FC = () => {
     });
   };
 
-  const getStageColor = (stage: string) => {
+  const getStageColor = (stage) => {
     const colors = {
       applied: 'bg-blue-100 text-blue-800',
       screen: 'bg-yellow-100 text-yellow-800',
@@ -133,10 +122,10 @@ const CandidateDetailPage: React.FC = () => {
       hired: 'bg-emerald-100 text-emerald-800',
       rejected: 'bg-red-100 text-red-800'
     };
-    return colors[stage as keyof typeof colors] || 'bg-stone-100 text-stone-800';
+    return colors[stage] || 'bg-stone-100 text-stone-800';
   };
 
-  const getStageLabel = (stage: string) => {
+  const getStageLabel = (stage) => {
     const labels = {
       applied: 'Applied',
       screen: 'Screening',
@@ -145,10 +134,10 @@ const CandidateDetailPage: React.FC = () => {
       hired: 'Hired',
       rejected: 'Rejected'
     };
-    return labels[stage as keyof typeof labels] || stage;
+    return labels[stage] || stage;
   };
 
-  const stages: Candidate['stage'][] = ['applied', 'screen', 'tech', 'offer', 'hired', 'rejected'];
+  const stages = ['applied', 'screen', 'tech', 'offer', 'hired', 'rejected'];
 
   if (loading) {
     return (
@@ -172,7 +161,6 @@ const CandidateDetailPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button
@@ -189,7 +177,7 @@ const CandidateDetailPage: React.FC = () => {
         
         <select
           value={candidate.stage}
-          onChange={(e) => handleStageChange(e.target.value as Candidate['stage'])}
+          onChange={(e) => handleStageChange(e.target.value)}
           className="input-field w-auto min-w-[150px]"
         >
           {stages.map(stage => (
@@ -201,9 +189,7 @@ const CandidateDetailPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Candidate Info Card */}
           <div className="card p-6">
             <h2 className="text-xl font-semibold text-stone-900 mb-4">Candidate Information</h2>
             <div className="space-y-4">
@@ -214,7 +200,6 @@ const CandidateDetailPage: React.FC = () => {
                   <p className="text-stone-900 font-medium">{candidate.name}</p>
                 </div>
               </div>
-              
               <div className="flex items-center space-x-3">
                 <EnvelopeIcon className="h-5 w-5 text-stone-400" />
                 <div>
@@ -222,7 +207,6 @@ const CandidateDetailPage: React.FC = () => {
                   <p className="text-stone-900 font-medium">{candidate.email}</p>
                 </div>
               </div>
-              
               {candidate.phone && (
                 <div className="flex items-center space-x-3">
                   <PhoneIcon className="h-5 w-5 text-stone-400" />
@@ -232,7 +216,6 @@ const CandidateDetailPage: React.FC = () => {
                   </div>
                 </div>
               )}
-              
               {candidate.experience && (
                 <div className="flex items-center space-x-3">
                   <BriefcaseIcon className="h-5 w-5 text-stone-400" />
@@ -242,7 +225,6 @@ const CandidateDetailPage: React.FC = () => {
                   </div>
                 </div>
               )}
-              
               <div className="flex items-center space-x-3">
                 <CalendarIcon className="h-5 w-5 text-stone-400" />
                 <div>
@@ -253,7 +235,6 @@ const CandidateDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Timeline */}
           <div className="card p-6">
             <h2 className="text-xl font-semibold text-stone-900 mb-4">Timeline</h2>
             <div className="space-y-4">
@@ -279,7 +260,6 @@ const CandidateDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Notes */}
           <div className="card p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-stone-900">Notes</h2>
@@ -291,7 +271,6 @@ const CandidateDetailPage: React.FC = () => {
                 Edit Notes
               </button>
             </div>
-            
             {showNotesInput ? (
               <div className="space-y-3">
                 <textarea
@@ -329,9 +308,7 @@ const CandidateDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Quick Actions */}
           <div className="card p-6">
             <h3 className="text-lg font-semibold text-stone-900 mb-4">Quick Actions</h3>
             <div className="space-y-3">
@@ -352,7 +329,6 @@ const CandidateDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Status Info */}
           <div className="card p-6">
             <h3 className="text-lg font-semibold text-stone-900 mb-4">Status Information</h3>
             <div className="space-y-3">
@@ -377,3 +353,5 @@ const CandidateDetailPage: React.FC = () => {
 };
 
 export default CandidateDetailPage;
+
+

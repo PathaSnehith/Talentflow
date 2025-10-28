@@ -1,5 +1,4 @@
 import { db } from '../db';
-import { Job, Candidate, Assessment, AssessmentSection, AssessmentQuestion } from '../types';
 
 const jobTitles = [
   'Senior Frontend Developer',
@@ -52,9 +51,9 @@ const companies = [
   'NextGen', 'FutureTech', 'SmartSystems', 'DigitalWorks', 'AppForge', 'WebCraft'
 ];
 
-const stages: Candidate['stage'][] = ['applied', 'screen', 'tech', 'offer', 'hired', 'rejected'];
+const stages = ['applied', 'screen', 'tech', 'offer', 'hired', 'rejected'];
 
-function generateSlug(title: string): string {
+function generateSlug(title) {
   return title
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '')
@@ -63,28 +62,26 @@ function generateSlug(title: string): string {
     .trim();
 }
 
-function getRandomElement<T>(array: T[]): T {
+function getRandomElement(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
 
-function getRandomElements<T>(array: T[], count: number): T[] {
+function getRandomElements(array, count) {
   const shuffled = [...array].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 }
 
-function generateRandomDate(start: Date, end: Date): string {
+function generateRandomDate(start, end) {
   const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
   return date.toISOString();
 }
 
 export async function generateSeedData() {
   console.log('Generating seed data...');
-
-  // Generate Jobs
-  const jobs: Job[] = [];
+  const jobs = [];
   for (let i = 0; i < 25; i++) {
     const title = getRandomElement(jobTitles);
-    const job: Job = {
+    const job = {
       id: crypto.randomUUID(),
       title: `${title} - ${getRandomElement(companies)}`,
       slug: generateSlug(title),
@@ -93,7 +90,7 @@ export async function generateSeedData() {
       order: i + 1,
       description: `We are looking for a talented ${title.toLowerCase()} to join our team. This role involves working on exciting projects and collaborating with a diverse team of professionals.`,
       requirements: [
-        'Bachelor\'s degree in Computer Science or related field',
+        "Bachelor's degree in Computer Science or related field",
         '3+ years of relevant experience',
         'Strong problem-solving skills',
         'Excellent communication skills',
@@ -104,16 +101,14 @@ export async function generateSeedData() {
     };
     jobs.push(job);
   }
-
   await db.jobs.bulkAdd(jobs);
   console.log(`Generated ${jobs.length} jobs`);
 
-  // Generate Candidates
-  const candidates: Candidate[] = [];
+  const candidates = [];
   for (let i = 0; i < 1000; i++) {
     const firstName = getRandomElement(firstNames);
     const lastName = getRandomElement(lastNames);
-    const candidate: Candidate = {
+    const candidate = {
       id: crypto.randomUUID(),
       name: `${firstName} ${lastName}`,
       email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@email.com`,
@@ -127,16 +122,13 @@ export async function generateSeedData() {
     };
     candidates.push(candidate);
   }
-
   await db.candidates.bulkAdd(candidates);
   console.log(`Generated ${candidates.length} candidates`);
 
-  // Generate Assessments
-  const assessments: Assessment[] = [];
-  const selectedJobs = jobs.slice(0, 3); // Create assessments for first 3 jobs
-
+  const assessments = [];
+  const selectedJobs = jobs.slice(0, 3);
   for (const job of selectedJobs) {
-    const assessment: Assessment = {
+    const assessment = {
       id: crypto.randomUUID(),
       jobId: job.id,
       title: `${job.title} Assessment`,
@@ -147,17 +139,13 @@ export async function generateSeedData() {
     };
     assessments.push(assessment);
   }
-
   await db.assessments.bulkAdd(assessments);
   console.log(`Generated ${assessments.length} assessments`);
-
   console.log('Seed data generation completed!');
 }
 
-function generateAssessmentSections(): AssessmentSection[] {
-  const sections: AssessmentSection[] = [];
-  
-  // Technical Skills Section
+function generateAssessmentSections() {
+  const sections = [];
   sections.push({
     id: crypto.randomUUID(),
     title: 'Technical Skills',
@@ -191,8 +179,6 @@ function generateAssessmentSections(): AssessmentSection[] {
       }
     ]
   });
-
-  // Problem Solving Section
   sections.push({
     id: crypto.randomUUID(),
     title: 'Problem Solving',
@@ -217,8 +203,6 @@ function generateAssessmentSections(): AssessmentSection[] {
       }
     ]
   });
-
-  // Experience Section
   sections.push({
     id: crypto.randomUUID(),
     title: 'Experience & Background',
@@ -231,12 +215,7 @@ function generateAssessmentSections(): AssessmentSection[] {
         title: 'Have you worked in an agile environment before?',
         required: true,
         options: ['Yes', 'No'],
-        order: 1,
-        conditionalLogic: {
-          dependsOn: 'previous-question-id', // This would reference another question
-          condition: 'equals',
-          value: 'Yes'
-        }
+        order: 1
       },
       {
         id: crypto.randomUUID(),
@@ -255,6 +234,7 @@ function generateAssessmentSections(): AssessmentSection[] {
       }
     ]
   });
-
   return sections;
 }
+
+

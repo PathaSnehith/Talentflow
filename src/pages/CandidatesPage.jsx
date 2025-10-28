@@ -1,21 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
+import { useNavigate } from 'react-router-dom';
 import { 
   MagnifyingGlassIcon,
-  FunnelIcon,
-  PlusIcon,
   Squares2X2Icon,
   QueueListIcon,
   UserGroupIcon
 } from '@heroicons/react/24/outline';
 import { useCandidateStore } from '../store';
-import { Candidate } from '../types';
 import { db } from '../db';
 import CandidatesList from '../components/CandidatesList';
 import toast from 'react-hot-toast';
 
-const CandidatesPage: React.FC = () => {
+const CandidatesPage = () => {
   const { 
     candidates, 
     setCandidates,
@@ -25,13 +21,11 @@ const CandidatesPage: React.FC = () => {
   
   const [searchTerm, setSearchTerm] = useState('');
   const [stageFilter, setStageFilter] = useState('');
-  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
+  const [viewMode, setViewMode] = useState('list');
   const navigate = useNavigate();
 
-  // Fetch candidates from IndexedDB
   const fetchCandidates = async () => {
     setLoading(true);
-    
     try {
       const allCandidates = await db.candidates.toArray();
       setCandidates(allCandidates);
@@ -46,12 +40,12 @@ const CandidatesPage: React.FC = () => {
     fetchCandidates();
   }, []);
 
-  const handleCandidateClick = (candidate: Candidate) => {
+  const handleCandidateClick = (candidate) => {
     navigate(`/candidates/${candidate.id}`);
   };
 
   const stages = ['applied', 'screen', 'tech', 'offer', 'hired', 'rejected'];
-  const stageLabels: Record<string, string> = {
+  const stageLabels = {
     applied: 'Applied',
     screen: 'Screening',
     tech: 'Technical',
@@ -60,7 +54,7 @@ const CandidatesPage: React.FC = () => {
     rejected: 'Rejected'
   };
 
-  const stageColors: Record<string, string> = {
+  const stageColors = {
     applied: 'bg-blue-100 text-blue-800 border-blue-200',
     screen: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     tech: 'bg-purple-100 text-purple-800 border-purple-200',
@@ -69,7 +63,7 @@ const CandidatesPage: React.FC = () => {
     rejected: 'bg-red-100 text-red-800 border-red-200'
   };
 
-  const getCandidatesByStage = (stage: string) => {
+  const getCandidatesByStage = (stage) => {
     let filtered = candidates;
     if (searchTerm) {
       filtered = filtered.filter(candidate =>
@@ -89,7 +83,6 @@ const CandidatesPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-stone-900">Candidates</h1>
@@ -120,10 +113,8 @@ const CandidatesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="card p-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {/* Search */}
           <div className="relative">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-stone-400" />
             <input
@@ -135,7 +126,6 @@ const CandidatesPage: React.FC = () => {
             />
           </div>
 
-          {/* Stage Filter */}
           <select
             value={stageFilter}
             onChange={(e) => setStageFilter(e.target.value)}
@@ -149,7 +139,6 @@ const CandidatesPage: React.FC = () => {
             ))}
           </select>
 
-          {/* Candidate Count */}
           <div className="flex items-center space-x-2">
             <UserGroupIcon className="h-5 w-5 text-stone-400" />
             <span className="text-sm font-medium text-stone-700">
@@ -159,7 +148,6 @@ const CandidatesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Content */}
       {viewMode === 'list' ? (
         <CandidatesList
           candidates={candidates}
@@ -224,3 +212,5 @@ const CandidatesPage: React.FC = () => {
 };
 
 export default CandidatesPage;
+
+

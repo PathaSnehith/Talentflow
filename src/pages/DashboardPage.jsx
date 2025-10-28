@@ -4,14 +4,13 @@ import {
   BriefcaseIcon, 
   UsersIcon, 
   ClipboardDocumentListIcon,
-  ArrowUpIcon,
-  ArrowDownIcon
+  ArrowUpIcon
 } from '@heroicons/react/24/outline';
 import { useJobStore } from '../store';
 import { useCandidateStore } from '../store';
 import { useAssessmentStore } from '../store';
 
-const DashboardPage: React.FC = () => {
+const DashboardPage = () => {
   const { jobs } = useJobStore();
   const { candidates } = useCandidateStore();
   const { assessments } = useAssessmentStore();
@@ -19,9 +18,9 @@ const DashboardPage: React.FC = () => {
     totalJobs: 0,
     activeJobs: 0,
     totalCandidates: 0,
-    candidatesByStage: {} as Record<string, number>,
+    candidatesByStage: {},
     totalAssessments: 0,
-    recentActivity: [] as any[]
+    recentActivity: []
   });
 
   useEffect(() => {
@@ -29,7 +28,7 @@ const DashboardPage: React.FC = () => {
     const candidatesByStage = candidates.reduce((acc, candidate) => {
       acc[candidate.stage] = (acc[candidate.stage] || 0) + 1;
       return acc;
-    }, {} as Record<string, number>);
+    }, {});
 
     setStats({
       totalJobs: jobs.length,
@@ -64,13 +63,11 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-stone-900">Dashboard</h1>
         <p className="mt-2 text-stone-600">Welcome to TalentFlow - your hiring management platform</p>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <div className="card p-6">
           <div className="flex items-center">
@@ -131,15 +128,14 @@ const DashboardPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Candidate Pipeline */}
         <div className="card p-6">
           <h3 className="text-lg font-semibold text-stone-900 mb-4">Candidate Pipeline</h3>
           <div className="space-y-3">
             {Object.entries(stats.candidatesByStage).map(([stage, count]) => (
               <div key={stage} className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${stageColors[stage as keyof typeof stageColors]}`}>
-                    {stageLabels[stage as keyof typeof stageLabels]}
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${stageColors[stage]}`}>
+                    {stageLabels[stage]}
                   </span>
                 </div>
                 <span className="text-sm font-medium text-stone-900">{count}</span>
@@ -156,7 +152,6 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Recent Activity */}
         <div className="card p-6">
           <h3 className="text-lg font-semibold text-stone-900 mb-4">Recent Activity</h3>
           <div className="space-y-3">
@@ -186,7 +181,6 @@ const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Actions */}
       <div className="card p-6">
         <h3 className="text-lg font-semibold text-stone-900 mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -229,3 +223,5 @@ const DashboardPage: React.FC = () => {
 };
 
 export default DashboardPage;
+
+

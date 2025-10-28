@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 
-interface MentionsListProps {
-  onMention: (text: string) => void;
-}
-
-const MentionsList: React.FC<MentionsListProps> = ({ onMention }) => {
+const MentionsList = ({ onMention }) => {
   const [mentionUsers] = useState([
     { id: 'john', name: 'John Doe', email: 'john@company.com' },
     { id: 'jane', name: 'Jane Smith', email: 'jane@company.com' },
@@ -36,3 +32,5 @@ const MentionsList: React.FC<MentionsListProps> = ({ onMention }) => {
 };
 
 export default MentionsList;
+
+

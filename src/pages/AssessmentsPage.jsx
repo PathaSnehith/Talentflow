@@ -5,26 +5,22 @@ import {
   PencilIcon, 
   TrashIcon,
   EyeIcon,
-  PlusIcon,
   BriefcaseIcon,
   CalendarIcon
 } from '@heroicons/react/24/outline';
 import { useAssessmentStore } from '../store';
-import { Assessment } from '../types';
 import { db } from '../db';
 import toast from 'react-hot-toast';
 
-const AssessmentsPage: React.FC = () => {
+const AssessmentsPage = () => {
   const { assessments, setAssessments, loading, setLoading } = useAssessmentStore();
-  const [jobs, setJobs] = useState<any[]>([]);
+  const [jobs, setJobs] = useState([]);
 
   const fetchAssessments = async () => {
     setLoading(true);
     try {
       const allAssessments = await db.assessments.toArray();
       setAssessments(allAssessments);
-      
-      // Fetch jobs to get job titles
       const allJobs = await db.jobs.toArray();
       setJobs(allJobs);
     } catch (error) {
@@ -38,9 +34,8 @@ const AssessmentsPage: React.FC = () => {
     fetchAssessments();
   }, []);
 
-  const handleDelete = async (assessment: Assessment) => {
+  const handleDelete = async (assessment) => {
     if (!window.confirm('Are you sure you want to delete this assessment?')) return;
-    
     try {
       await db.assessments.delete(assessment.id);
       setAssessments(assessments.filter(a => a.id !== assessment.id));
@@ -50,12 +45,12 @@ const AssessmentsPage: React.FC = () => {
     }
   };
 
-  const getJobTitle = (jobId: string) => {
+  const getJobTitle = (jobId) => {
     const job = jobs.find(j => j.id === jobId);
     return job?.title || 'Unknown Job';
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -65,7 +60,6 @@ const AssessmentsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-stone-900">Assessments</h1>
@@ -75,7 +69,6 @@ const AssessmentsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Assessments List */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {loading ? (
           <div className="col-span-full flex items-center justify-center py-12">
@@ -122,7 +115,6 @@ const AssessmentsPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="flex items-center space-x-2 pt-4 border-t border-stone-200">
                 <Link
                   to={`/assessments/${assessment.jobId}`}
@@ -154,3 +146,5 @@ const AssessmentsPage: React.FC = () => {
 };
 
 export default AssessmentsPage;
+
+
