@@ -6,8 +6,8 @@ import {
   QueueListIcon,
   UserGroupIcon
 } from '@heroicons/react/24/outline';
-import { DndContext, closestCenter } from '@dnd-kit/core';
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { DndContext, closestCenter, useDraggable, useDroppable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
 import { useCandidateStore } from '../store';
 import { db } from '../db';
 import CandidatesList from '../components/CandidatesList';
@@ -162,9 +162,9 @@ const CandidatesPage = () => {
           collisionDetection={closestCenter}
           onDragEnd={async (event) => {
             const { active, over } = event;
-            if (!over || !active || !active.data?.current) return;
-            const candidate = active.data.current.candidate;
-            const targetStage = over.data?.current?.stage;
+            if (!over) return;
+            const candidate = active?.data?.current?.candidate;
+            const targetStage = over.id; // droppable id is stage
             if (!candidate || !targetStage || candidate.stage === targetStage) return;
             try {
               const updatedCandidate = { ...candidate, stage: targetStage, updatedAt: new Date().toISOString() };
@@ -181,59 +181,69 @@ const CandidatesPage = () => {
           <div className="grid grid-cols-6 gap-4">
             {stages.map(stage => {
               const stageCandidates = getCandidatesByStage(stage);
-              return (
-                <div key={stage} className="card">
-                  <div className={`p-3 border-b-2 ${stageColors[stage]}`} data-stage-container>
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-sm">{stageLabels[stage]}</h3>
-                      <span className="bg-white bg-opacity-50 px-2 py-1 rounded-full text-xs font-medium">
-                        {stageCandidates.length}
-                      </span>
+
+              const DroppableColumn = ({ children }) => {
+                const { setNodeRef } = useDroppable({ id: stage });
+                return (
+                  <div ref={setNodeRef} className="card">
+                    <div className={`p-3 border-b-2 ${stageColors[stage]}`}>
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold text-sm">{stageLabels[stage]}</h3>
+                        <span className="bg-white bg-opacity-50 px-2 py-1 rounded-full text-xs font-medium">
+                          {stageCandidates.length}
+                        </span>
+                      </div>
                     </div>
+                    <div className="p-2 space-y-2 max-h-96 overflow-y-auto">{children}</div>
                   </div>
-                  <div className="p-2 space-y-2 max-h-96 overflow-y-auto" data-stage={stage} data-dnd-dropzone data-dnd-stage>
-                    <SortableContext items={stageCandidates.map(c => c.id)} strategy={verticalListSortingStrategy}>
-                      {stageCandidates.map(candidate => (
-                        <div
-                          key={candidate.id}
-                          data-dnd-draggable
-                          onMouseDown={(e) => {
-                            // Attach candidate data for DnD context
-                            e.currentTarget.dataset.candidate = JSON.stringify(candidate);
-                          }}
-                          onClick={() => handleCandidateClick(candidate)}
-                          className="p-3 bg-stone-50 rounded-lg hover:bg-stone-100 cursor-pointer transition-colors"
-                          data-candidate-id={candidate.id}
-                          data-dnd-payload
-                        >
-                          <div className="flex items-center space-x-2 mb-2">
-                            <div className="h-6 w-6 bg-sage-100 rounded-full flex items-center justify-center flex-shrink-0">
-                              <span className="text-sage-700 font-medium text-xs">
-                                {candidate.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                              </span>
-                            </div>
-                            <p className="text-sm font-medium text-stone-900 truncate">
-                              {candidate.name}
-                            </p>
-                          </div>
-                          <p className="text-xs text-stone-500 truncate">
-                            {candidate.email}
-                          </p>
-                          {candidate.experience && (
-                            <p className="text-xs text-stone-400 mt-1">
-                              {candidate.experience} yrs exp
-                            </p>
-                          )}
-                        </div>
-                      ))}
-                      {stageCandidates.length === 0 && (
-                        <div className="p-3 text-center text-stone-400 text-sm">
-                          No candidates
-                        </div>
-                      )}
-                    </SortableContext>
+                );
+              };
+
+              const CandidateCard = ({ candidate }) => {
+                const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+                  id: candidate.id,
+                  data: { candidate },
+                });
+                const style = {
+                  transform: CSS.Transform.toString(transform),
+                  opacity: isDragging ? 0.6 : undefined,
+                };
+                return (
+                  <div
+                    ref={setNodeRef}
+                    style={style}
+                    {...listeners}
+                    {...attributes}
+                    onClick={() => handleCandidateClick(candidate)}
+                    className="p-3 bg-stone-50 rounded-lg hover:bg-stone-100 cursor-grab active:cursor-grabbing transition-colors"
+                  >
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className="h-6 w-6 bg-sage-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-sage-700 font-medium text-xs">
+                          {candidate.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                        </span>
+                      </div>
+                      <p className="text-sm font-medium text-stone-900 truncate">
+                        {candidate.name}
+                      </p>
+                    </div>
+                    <p className="text-xs text-stone-500 truncate">{candidate.email}</p>
+                    {candidate.experience && (
+                      <p className="text-xs text-stone-400 mt-1">{candidate.experience} yrs exp</p>
+                    )}
                   </div>
-                </div>
+                );
+              };
+
+              return (
+                <DroppableColumn key={stage}>
+                  {stageCandidates.map(candidate => (
+                    <CandidateCard key={candidate.id} candidate={candidate} />
+                  ))}
+                  {stageCandidates.length === 0 && (
+                    <div className="p-3 text-center text-stone-400 text-sm">No candidates</div>
+                  )}
+                </DroppableColumn>
               );
             })}
           </div>
