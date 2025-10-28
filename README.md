@@ -4,8 +4,8 @@ A modern, aesthetic React application for HR teams to manage jobs, candidates, a
 
 ## 🚀 Live Application
 
-**Deployed App:** [View Live](https://talentflow-hiring.vercel.app) *(Deploy after finalization)*  
-**GitHub Repository:** [View on GitHub](https://github.com/yourusername/talentflow) *(Setup after finalization)*
+**Deployed App:** [Deploy on Netlify](https://app.netlify.com/start/deploy?repository=https://github.com/PathaSnehith/TalentFlow)  
+**GitHub Repository:** [View on GitHub](https://github.com/PathaSnehith/TalentFlow)
 
 ## ✨ Features
 
