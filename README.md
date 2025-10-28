@@ -123,7 +123,7 @@ talentflow/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 16+ 
+- Node.js 18+ 
 - npm or yarn
 
 ### Installation
@@ -168,9 +168,9 @@ All data persists in browser's IndexedDB and survives page refreshes.
 
 ### Why These Technologies?
 
-**React + TypeScript**
-- Type safety prevents runtime errors
-- Excellent developer experience with IntelliSense
+**React (JavaScript)**
+- Matches assignment requirement to use React without TypeScript
+- Simple setup and faster iteration for a front‑end–only demo
 - Large ecosystem and community support
 
 **Zustand**
@@ -207,12 +207,12 @@ All data persists in browser's IndexedDB and survives page refreshes.
 ## 🐛 Known Issues & Solutions
 
 ### 1. MSW Integration
-**Issue:** MSW was initially included but disabled for simplicity.  
-**Solution:** Direct IndexedDB access works perfectly for demo purposes. MSW can be re-enabled if needed for realistic API simulation.
+**Issue:** Need a network layer with latency/errors but no backend.  
+**Solution:** MSW enabled in development (`App.jsx`) with 200–1200ms delay and ~8% error on writes; data writes through to Dexie.
 
 ### 2. Candidate Drag-and-Drop in Kanban
-**Issue:** Drag-and-drop between stages needs implementation.  
-**Solution:** Currently, candidates can be moved between stages via dropdown. Full DnD can be added if needed.
+**Issue:** Stage transitions should be intuitive.  
+**Solution:** Implemented drag-and-drop between columns; updates persist to Dexie and Zustand.
 
 ### 3. Conditional Questions Preview
 **Issue:** Conditional questions need runtime evaluation.  
