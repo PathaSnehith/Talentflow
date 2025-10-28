@@ -126,7 +126,7 @@ export async function generateSeedData() {
   console.log(`Generated ${candidates.length} candidates`);
 
   const assessments = [];
-  const selectedJobs = jobs.slice(0, 3);
+  const selectedJobs = jobs.slice(0, 6); // create assessments for first 6 jobs to better showcase the page
   for (const job of selectedJobs) {
     const assessment = {
       id: crypto.randomUUID(),
