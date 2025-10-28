@@ -271,11 +271,11 @@ This project is licensed under the MIT License.
 
 ## 👥 Acknowledgments
 
-- Built with ❤️ using React, TypeScript, and Tailwind CSS
+- Built with  using React, TypeScript, and Tailwind CSS
 - Inspired by modern HR platforms
 - Natural, calming design for better UX
 
-## 📞 Support
+##  Support
 
 For questions or support, please open an issue on GitHub.
 
