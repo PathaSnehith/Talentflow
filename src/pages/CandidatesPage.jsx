@@ -6,6 +6,8 @@ import {
   QueueListIcon,
   UserGroupIcon
 } from '@heroicons/react/24/outline';
+import { DndContext, closestCenter } from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useCandidateStore } from '../store';
 import { db } from '../db';
 import CandidatesList from '../components/CandidatesList';
@@ -156,56 +158,86 @@ const CandidatesPage = () => {
           onCandidateClick={handleCandidateClick}
         />
       ) : (
-        <div className="grid grid-cols-6 gap-4">
-          {stages.map(stage => {
-            const stageCandidates = getCandidatesByStage(stage);
-            return (
-              <div key={stage} className="card">
-                <div className={`p-3 border-b-2 ${stageColors[stage]}`}>
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-sm">{stageLabels[stage]}</h3>
-                    <span className="bg-white bg-opacity-50 px-2 py-1 rounded-full text-xs font-medium">
-                      {stageCandidates.length}
-                    </span>
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={async (event) => {
+            const { active, over } = event;
+            if (!over || !active || !active.data?.current) return;
+            const candidate = active.data.current.candidate;
+            const targetStage = over.data?.current?.stage;
+            if (!candidate || !targetStage || candidate.stage === targetStage) return;
+            try {
+              const updatedCandidate = { ...candidate, stage: targetStage, updatedAt: new Date().toISOString() };
+              await db.candidates.update(candidate.id, updatedCandidate);
+              setCandidates(
+                candidates.map(c => (c.id === candidate.id ? updatedCandidate : c))
+              );
+              toast.success(`Moved to ${stageLabels[targetStage]}`);
+            } catch (e) {
+              toast.error('Failed to move candidate');
+            }
+          }}
+        >
+          <div className="grid grid-cols-6 gap-4">
+            {stages.map(stage => {
+              const stageCandidates = getCandidatesByStage(stage);
+              return (
+                <div key={stage} className="card">
+                  <div className={`p-3 border-b-2 ${stageColors[stage]}`} data-stage-container>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-sm">{stageLabels[stage]}</h3>
+                      <span className="bg-white bg-opacity-50 px-2 py-1 rounded-full text-xs font-medium">
+                        {stageCandidates.length}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-2 space-y-2 max-h-96 overflow-y-auto" data-stage={stage} data-dnd-dropzone data-dnd-stage>
+                    <SortableContext items={stageCandidates.map(c => c.id)} strategy={verticalListSortingStrategy}>
+                      {stageCandidates.map(candidate => (
+                        <div
+                          key={candidate.id}
+                          data-dnd-draggable
+                          onMouseDown={(e) => {
+                            // Attach candidate data for DnD context
+                            e.currentTarget.dataset.candidate = JSON.stringify(candidate);
+                          }}
+                          onClick={() => handleCandidateClick(candidate)}
+                          className="p-3 bg-stone-50 rounded-lg hover:bg-stone-100 cursor-pointer transition-colors"
+                          data-candidate-id={candidate.id}
+                          data-dnd-payload
+                        >
+                          <div className="flex items-center space-x-2 mb-2">
+                            <div className="h-6 w-6 bg-sage-100 rounded-full flex items-center justify-center flex-shrink-0">
+                              <span className="text-sage-700 font-medium text-xs">
+                                {candidate.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                              </span>
+                            </div>
+                            <p className="text-sm font-medium text-stone-900 truncate">
+                              {candidate.name}
+                            </p>
+                          </div>
+                          <p className="text-xs text-stone-500 truncate">
+                            {candidate.email}
+                          </p>
+                          {candidate.experience && (
+                            <p className="text-xs text-stone-400 mt-1">
+                              {candidate.experience} yrs exp
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                      {stageCandidates.length === 0 && (
+                        <div className="p-3 text-center text-stone-400 text-sm">
+                          No candidates
+                        </div>
+                      )}
+                    </SortableContext>
                   </div>
                 </div>
-                <div className="p-2 space-y-2 max-h-96 overflow-y-auto">
-                  {stageCandidates.map(candidate => (
-                    <div
-                      key={candidate.id}
-                      onClick={() => handleCandidateClick(candidate)}
-                      className="p-3 bg-stone-50 rounded-lg hover:bg-stone-100 cursor-pointer transition-colors"
-                    >
-                      <div className="flex items-center space-x-2 mb-2">
-                        <div className="h-6 w-6 bg-sage-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-sage-700 font-medium text-xs">
-                            {candidate.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                          </span>
-                        </div>
-                        <p className="text-sm font-medium text-stone-900 truncate">
-                          {candidate.name}
-                        </p>
-                      </div>
-                      <p className="text-xs text-stone-500 truncate">
-                        {candidate.email}
-                      </p>
-                      {candidate.experience && (
-                        <p className="text-xs text-stone-400 mt-1">
-                          {candidate.experience} yrs exp
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                  {stageCandidates.length === 0 && (
-                    <div className="p-3 text-center text-stone-400 text-sm">
-                      No candidates
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </DndContext>
       )}
     </div>
   );
