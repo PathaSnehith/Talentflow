@@ -167,10 +167,6 @@ This creates a `build/` directory with optimized production files.
 3. SPA redirects: ensure `public/_redirects` contains `/* /index.html 200`.
 4. Deploy and copy the site URL. Add it to `DEPLOYMENT.md`.
 
-### Screenshots
-
-Add screenshots here after deployment (optional but recommended):
-
 ![Dashboard](./docs/images/dashboard.png)
 ![Jobs](./docs/images/jobs.png)
 ![Candidates Kanban](./docs/images/candidates-kanban.png)
