@@ -4,8 +4,8 @@ A modern, aesthetic React application for HR teams to manage jobs, candidates, a
 
 ## 🚀 Live Application
 
-**Deployed App:** [Deploy on Netlify](https://app.netlify.com/start/deploy?repository=https://github.com/PathaSnehith/TalentFlow)  
-**GitHub Repository:** [View on GitHub](https://github.com/PathaSnehith/TalentFlow)
+**Deployed App:** Deploy on Netlify  
+**GitHub Repository:** View on GitHub
 
 ## ✨ Features
 
@@ -56,7 +56,7 @@ A modern, aesthetic React application for HR teams to manage jobs, candidates, a
 ## 🏗️ Architecture
 
 ### Tech Stack
-- **Frontend:** React 19.2 with TypeScript
+- **Frontend:** React 19.2 (JavaScript)
 - **State Management:** Zustand with persistence
 - **Database:** IndexedDB via Dexie
 - **Routing:** React Router v7
@@ -73,32 +73,30 @@ talentflow/
 ├── public/
 ├── src/
 │   ├── components/          # Reusable UI components
-│   │   ├── Layout.tsx       # Main layout with sidebar
-│   │   ├── JobCard.tsx      # Job listing card
-│   │   ├── JobModal.tsx     # Job create/edit modal
-│   │   ├── Pagination.tsx   # Pagination component
-│   │   ├── CandidatesList.tsx
-│   │   └── MentionsList.tsx
+│   │   ├── Layout.jsx       # Main layout with sidebar
+│   │   ├── JobCard.jsx      # Job listing card
+│   │   ├── JobModal.jsx     # Job create/edit modal
+│   │   ├── Pagination.jsx   # Pagination component
+│   │   ├── CandidatesList.jsx
+│   │   └── MentionsList.jsx
 │   ├── pages/               # Page components
-│   │   ├── DashboardPage.tsx
-│   │   ├── JobsPage.tsx
-│   │   ├── JobDetailPage.tsx
-│   │   ├── CandidatesPage.tsx
-│   │   ├── CandidateDetailPage.tsx
-│   │   ├── AssessmentsPage.tsx
-│   │   └── AssessmentBuilderPage.tsx
+│   │   ├── DashboardPage.jsx
+│   │   ├── JobsPage.jsx
+│   │   ├── JobDetailPage.jsx
+│   │   ├── CandidatesPage.jsx
+│   │   ├── CandidateDetailPage.jsx
+│   │   ├── AssessmentsPage.jsx
+│   │   └── AssessmentBuilderPage.jsx
 │   ├── store/               # Zustand state management
-│   │   └── index.ts
-│   ├── types/               # TypeScript type definitions
-│   │   └── index.ts
+│   │   └── index.js
 │   ├── db/                  # IndexedDB setup
-│   │   └── index.ts
+│   │   └── index.js
 │   ├── mocks/               # MSW handlers (for future API)
-│   │   └── handlers.ts
+│   │   └── handlers.js
 │   ├── utils/               # Utility functions
-│   │   └── seedData.ts
-│   ├── App.tsx              # Main app component
-│   └── index.tsx            # Entry point
+│   │   └── seedData.js
+│   ├── App.jsx              # Main app component
+│   └── index.jsx            # Entry point
 ```
 
 ### State Management
@@ -242,7 +240,7 @@ The following API endpoints are defined but currently use direct IndexedDB acces
 
 ## 🎯 Evaluation Criteria Met
 
-✅ **Code Quality:** Clean, well-structured, TypeScript throughout  
+✅ **Code Quality:** Clean, well-structured, JavaScript throughout  
 ✅ **App Structure:** Modular, scalable, maintainable  
 ✅ **Functionality:** All core features implemented  
 ✅ **UI/UX:** Beautiful, intuitive, natural theme  
