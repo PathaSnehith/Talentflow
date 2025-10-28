@@ -9,7 +9,7 @@ TalentFlow is a small React app I built to practice common HR workflows without 
 
 ## ✨ What it does
 
-### 1. Jobs Management ✅
+### 1. Jobs Management 
 - Create, edit, archive, and reorder jobs with drag-and-drop
 - Server-like pagination and filtering (title, status, tags)
 - Deep linking to individual job pages (`/jobs/:jobId`)
@@ -19,7 +19,7 @@ TalentFlow is a small React app I built to practice common HR workflows without 
 - Archive/unarchive functionality
 - Real-time search and filtering
 
-### 2. Candidates Management ✅
+### 2. Candidates Management 
 - Virtualized list for 1000+ candidates
 - Client-side search by name/email
 - Stage filtering (applied, screen, tech, offer, hired, rejected)
@@ -30,7 +30,7 @@ TalentFlow is a small React app I built to practice common HR workflows without 
 - Move candidates between stages dynamically
 - View candidate details and history
 
-### 3. Assessments ✅
+### 3. Assessments 
 - Assessment builder per job
 - Multiple question types:
   - Single-choice questions
@@ -45,7 +45,7 @@ TalentFlow is a small React app I built to practice common HR workflows without 
 - Add sections and questions dynamically
 - Form validation (required, numeric range, max length)
 
-### 4. Dashboard ✅
+### 4. Dashboard 
 - Real-time statistics and metrics
 - Candidate pipeline visualization
 - Recent activity feed
@@ -253,7 +253,7 @@ The following API endpoints are defined but currently use direct IndexedDB acces
 - `POST /api/assessments/:jobId/submit` - Submit assessment response
 
 
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
@@ -265,7 +265,7 @@ The following API endpoints are defined but currently use direct IndexedDB acces
 
 This project is licensed under the MIT License.
 
-## 👥 Acknowledgments
+##  Acknowledgments
 
 - Built with  using React, TypeScript, and Tailwind CSS
 - Inspired by modern HR platforms
