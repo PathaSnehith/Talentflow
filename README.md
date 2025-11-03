@@ -2,10 +2,6 @@
 
 TalentFlow is a small React app I built to practice common HR workflows without a backend. It manages jobs, candidates, and quick assessments, and stores everything locally (IndexedDB) so a refresh doesn’t wipe your work.
 
-## 🚀 Live Application
-
-**Deployed App:** Deploy on Netlify  
-**GitHub Repository:** View on GitHub
 
 ## ✨ What it does
 
