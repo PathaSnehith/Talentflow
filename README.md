@@ -4,7 +4,7 @@ TalentFlow is a small React app I built to practice common HR workflows without 
 
 ## 🚀 Live Application
 
-**Deployed App:** [Live on Netlify](https://talenthiringplatform2.netlify.app)  
+**Deployed App:** [Live on Netlify](https://hiringplatform123.netlify.app)  
 **GitHub Repository:** [PathaSnehith/Talentflow](https://github.com/PathaSnehith/Talentflow)
 
 ## ✨ What it does
